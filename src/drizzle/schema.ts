@@ -1,14 +1,19 @@
-import { pgTable } from "drizzle-orm/pg-core";
-import { uuid, varchar, timestamp, text } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, boolean, timestamp, uuid } from "drizzle-orm/pg-core";
 
-export const Requests = pgTable("requests", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    name: varchar("name", { length: 255 }).notNull(),
-    email: varchar("email", { length: 255 }).notNull(),
-    message: text("message").notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdateFn(() => new Date()),
-    status: varchar("status", { length: 50 }).notNull().default("pending"),
-    response: text("response"),
-   
-})
+export const users = pgTable("users", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  username: text("username").notNull(),
+  email: text("email").notNull().unique(),
+  isDoctor: boolean("is_doctor").default(false),
+  bio: text("bio"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const remedies = pgTable("remedies", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  userId: uuid("user_id").notNull().references(() => users.id),
+  isVerified: boolean("is_verified").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
